@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 
 import static org.junit.Assert.*;
@@ -145,6 +146,43 @@ public class DBConnectionTest2Test extends TestCase {
 
         PreparedStatement pstmt = conn.prepareStatement(sql); // SQL Injection 공격 방어, 성능향상 (재사용, 캐싱효과)
         pstmt.executeUpdate(); // sql문 실행, 생성된 로우 카운트 반환
+
+    }
+
+    @Test
+    public void transactionTest() throws Exception {
+        Connection conn=null;
+        try {
+            deleteAll();
+            conn = ds.getConnection();
+            conn.setAutoCommit(false); // 디폴트 -> true
+
+//        insert into user_info (id, pwd, name, email, sns, birth, reg_date)
+//        values ('asdf23', '1234', 'hoondal', 'aaa@aaa.com','facebook', '2022-01-01', now());
+
+            String sql = "insert into user_info values (?, ?, ?, ?,?,?, now())";
+
+            PreparedStatement pstmt = null; // SQL Injection 공격 방어, 성능향상 (재사용, 캐싱효과)
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1,"hoondal10");
+            pstmt.setString(2,"1234");
+            pstmt.setString(3,"훈달이");
+            pstmt.setString(4,"aaa@aaa.com");
+            pstmt.setString(5,"fb");
+            pstmt.setDate(6,new java.sql.Date(new Date().getTime()));
+
+            int rowCnt = pstmt.executeUpdate(); // sql문 실행, 생성된 로우 카운트 반환
+
+            pstmt.setString(1, "hoondal10");
+            rowCnt = pstmt.executeUpdate(); // sql문 실행, 생성된 로우 카운트 반환
+
+            conn.commit();
+        } catch (Exception e) {
+            conn.rollback();
+            e.printStackTrace();
+        } finally {
+        }
+
 
     }
 
