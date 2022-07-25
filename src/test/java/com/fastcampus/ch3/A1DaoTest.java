@@ -20,12 +20,12 @@ public class A1DaoTest {
     A1Dao a1Dao;
 
     @Autowired
-    DataSource ds;
+    DataSourceTransactionManager tm;
 
     @Test
     public void insertTest() throws Exception{
         // TX매니저를 생성
-        PlatformTransactionManager tm = new DataSourceTransactionManager(ds);
+//        PlatformTransactionManager tm = new DataSourceTransactionManager(ds);
         TransactionStatus status = tm.getTransaction(new DefaultTransactionDefinition());
 
         // tx 시작
